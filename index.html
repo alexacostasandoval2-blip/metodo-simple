@@ -64,6 +64,13 @@
             font-size: 1.5em;
         }
 
+        .section h3 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -73,6 +80,7 @@
             margin-bottom: 5px;
             color: #555;
             font-weight: 500;
+            font-size: 0.95em;
         }
 
         .form-group input, .form-group select {
@@ -87,6 +95,30 @@
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .variable-input-group {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #28a745;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .variable-input-group label {
+            margin: 0;
+            min-width: 150px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .variable-input-group input {
+            flex: 1;
+            padding: 8px;
+            margin-bottom: 0;
         }
 
         .table-container {
@@ -104,6 +136,7 @@
             padding: 10px;
             text-align: center;
             border: 1px solid #ddd;
+            font-size: 0.9em;
         }
 
         table th {
@@ -126,6 +159,42 @@
             border: 1px solid #ddd;
             border-radius: 3px;
             text-align: center;
+        }
+
+        .restriction-box {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 3px solid #17a2b8;
+        }
+
+        .restriction-box h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .restriction-name {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .restriction-name label {
+            display: block;
+            font-weight: 500;
+            margin: 0;
+            min-width: 80px;
+            color: #555;
+            align-self: center;
+        }
+
+        .restriction-name input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
 
         .btn-container {
@@ -168,28 +237,6 @@
             background: #5a6268;
         }
 
-        .btn-add {
-            background: #28a745;
-            color: white;
-            padding: 8px 16px;
-            font-size: 0.9em;
-        }
-
-        .btn-add:hover {
-            background: #218838;
-        }
-
-        .btn-remove {
-            background: #dc3545;
-            color: white;
-            padding: 5px 10px;
-            font-size: 0.85em;
-        }
-
-        .btn-remove:hover {
-            background: #c82333;
-        }
-
         .results {
             grid-column: 1 / -1;
             background: #f8f9fa;
@@ -221,6 +268,19 @@
             color: #28a745;
             font-size: 1.3em;
             font-weight: bold;
+        }
+
+        .result-detail {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .result-detail strong {
+            color: #667eea;
+            font-size: 1em;
         }
 
         .simplex-table {
@@ -302,12 +362,21 @@
                 font-size: 1.8em;
             }
 
+            .variable-input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .variable-input-group label {
+                min-width: auto;
+            }
+
             .table-container {
-                font-size: 0.9em;
+                font-size: 0.85em;
             }
 
             table th, table td {
-                padding: 8px 5px;
+                padding: 6px 3px;
             }
         }
 
@@ -367,11 +436,11 @@
                     <input type="number" id="numRestricciones" min="1" max="10" value="4" onchange="generarRestricciones()">
                 </div>
 
-                <h3 style="margin-top: 20px; color: #333;">Función Objetivo</h3>
-                <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Coeficientes de Max/Min Z:</p>
+                <h3>📊 Función Objetivo (Max/Min Z)</h3>
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Ingresa los coeficientes de utilidad o costo para cada variable:</p>
                 <div id="coeficientesObjetivo"></div>
 
-                <h3 style="margin-top: 20px; color: #333;">Restricciones</h3>
+                <h3>🔐 Restricciones</h3>
                 <div id="restricciones"></div>
             </div>
 
@@ -404,45 +473,96 @@
             cargarDatosPollosRosita();
         });
 
-        // GENERAR VARIABLES
+        // GENERAR VARIABLES CON NOMBRES DESCRIPTIVOS
         function generarVariables() {
             const num = parseInt(document.getElementById('numVariables').value);
             const container = document.getElementById('coeficientesObjetivo');
             container.innerHTML = '';
 
+            // Nombres por defecto descriptivos
+            const nombresDefault = [
+                'Pollo Entero',
+                'Medio Pollo',
+                'Cuarto de Pollo',
+                'Alitas',
+                'Piezas Mixtas',
+                'Muslos',
+                'Pechugas',
+                'Milanesas',
+                'Empanadas',
+                'Complementos'
+            ];
+
             for (let i = 1; i <= num; i++) {
                 const div = document.createElement('div');
-                div.className = 'form-group';
+                div.className = 'variable-input-group';
+                
+                let nombre = localStorage.getItem(`var_nombre_${i}`) || nombresDefault[i-1] || `Variable ${i}`;
+                let coef = localStorage.getItem(`var_coef_${i}`) || 0;
+                
                 div.innerHTML = `
-                    <label>x${i}:</label>
-                    <input type="number" id="coef_${i}" placeholder="Coeficiente de x${i}" value="0" step="0.01">
+                    <label id="label_${i}">${nombre}:</label>
+                    <input type="number" 
+                           id="coef_${i}" 
+                           placeholder="Coeficiente" 
+                           value="${coef}" 
+                           step="0.01"
+                           onchange="guardarNombreVariable(${i})">
                 `;
                 container.appendChild(div);
             }
         }
 
-        // GENERAR RESTRICCIONES
+        // GENERAR RESTRICCIONES CON NOMBRES
         function generarRestricciones() {
             const numVar = parseInt(document.getElementById('numVariables').value);
             const numRest = parseInt(document.getElementById('numRestricciones').value);
             const container = document.getElementById('restricciones');
             container.innerHTML = '';
 
+            const nombresDefault = [
+                'Disponibilidad de Pollo Fresco',
+                'Disponibilidad de Papas Fritas',
+                'Horas de Trabajo',
+                'Disponibilidad de Arroz',
+                'Ingredientes Especiales',
+                'Capacidad de Almacén',
+                'Pedidos Mínimos',
+                'Presupuesto de Producción',
+                'Recurso 9',
+                'Recurso 10'
+            ];
+
             for (let i = 1; i <= numRest; i++) {
                 const div = document.createElement('div');
-                div.style.marginBottom = '20px';
-                div.style.paddingBottom = '20px';
-                div.style.borderBottom = '1px solid #ddd';
+                div.className = 'restriction-box';
 
-                let html = `<strong>Restricción ${i}:</strong><div class="table-container"><table><tr>`;
+                let nombreRest = localStorage.getItem(`rest_nombre_${i}`) || nombresDefault[i-1] || `Restricción ${i}`;
+
+                let html = `
+                    <h4>Restricción ${i}</h4>
+                    <div class="restriction-name">
+                        <label>Nombre:</label>
+                        <input type="text" 
+                               id="nombre_rest_${i}" 
+                               value="${nombreRest}"
+                               placeholder="Nombre de la restricción"
+                               onchange="guardarNombreRestriccion(${i})">
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <tr>
+                `;
                 
                 for (let j = 1; j <= numVar; j++) {
-                    html += `<th>x${j}</th>`;
+                    let varName = localStorage.getItem(`var_nombre_${j}`) || nombresDefault[j-1] || `x${j}`;
+                    html += `<th>${varName}</th>`;
                 }
-                html += `<th>Operador</th><th>LD</th></tr><tr>`;
+                html += `<th>Operador</th><th>Disponibilidad</th></tr><tr>`;
 
                 for (let j = 1; j <= numVar; j++) {
-                    html += `<td><input type="number" id="rest_${i}_${j}" placeholder="0" value="0" step="0.01"></td>`;
+                    let coef = localStorage.getItem(`rest_${i}_${j}`) || 0;
+                    html += `<td><input type="number" id="rest_${i}_${j}" placeholder="0" value="${coef}" step="0.01"></td>`;
                 }
 
                 html += `<td><select id="oper_${i}">
@@ -450,12 +570,28 @@
                     <option value=">=">=</option>
                     <option value="=">=</option>
                 </select></td>
-                <td><input type="number" id="ld_${i}" placeholder="Lado Derecho" value="0" step="0.01"></td>
-                </tr></table></div>`;
+                <td><input type="number" id="ld_${i}" placeholder="Límite" value="0" step="0.01"></td>
+                </tr></table>
+                    </div>
+                `;
 
                 div.innerHTML = html;
                 container.appendChild(div);
             }
+        }
+
+        // GUARDAR NOMBRES EN LOCALSTORAGE
+        function guardarNombreVariable(index) {
+            const label = document.getElementById(`label_${index}`);
+            if (label) {
+                const nombreInput = document.querySelector(`#coef_${index}`).previousElementSibling.textContent.replace(':', '').trim();
+                localStorage.setItem(`var_nombre_${index}`, nombreInput);
+            }
+        }
+
+        function guardarNombreRestriccion(index) {
+            const nombre = document.getElementById(`nombre_rest_${index}`).value;
+            localStorage.setItem(`rest_nombre_${index}`, nombre);
         }
 
         // CARGAR DATOS POLLOS ROSITA
@@ -468,13 +604,24 @@
             generarVariables();
             generarRestricciones();
 
+            // Variables con nombres
+            const varNames = ['Pollo Entero', 'Medio Pollo', 'Cuarto de Pollo', 'Alitas'];
+            const restNames = ['Disponibilidad de Pollo Fresco', 'Disponibilidad de Papas Fritas', 'Horas de Trabajo', 'Disponibilidad de Arroz'];
+
             // Coeficientes función objetivo (Utilidades)
             document.getElementById('coef_1').value = 60;  // Pollo entero
             document.getElementById('coef_2').value = 35;  // Medio pollo
             document.getElementById('coef_3').value = 20;  // Cuarto de pollo
             document.getElementById('coef_4').value = 25;  // Alitas
 
+            // Actualizar labels
+            for (let i = 1; i <= 4; i++) {
+                const label = document.getElementById(`label_${i}`);
+                if (label) label.textContent = varNames[i-1] + ':';
+            }
+
             // Restricción 1: Pollo fresco
+            document.getElementById('nombre_rest_1').value = restNames[0];
             document.getElementById('rest_1_1').value = 4;
             document.getElementById('rest_1_2').value = 2;
             document.getElementById('rest_1_3').value = 1;
@@ -483,6 +630,7 @@
             document.getElementById('ld_1').value = 720;
 
             // Restricción 2: Papas fritas
+            document.getElementById('nombre_rest_2').value = restNames[1];
             document.getElementById('rest_2_1').value = 5;
             document.getElementById('rest_2_2').value = 3;
             document.getElementById('rest_2_3').value = 2;
@@ -491,6 +639,7 @@
             document.getElementById('ld_2').value = 900;
 
             // Restricción 3: Horas de trabajo
+            document.getElementById('nombre_rest_3').value = restNames[2];
             document.getElementById('rest_3_1').value = 3;
             document.getElementById('rest_3_2').value = 2;
             document.getElementById('rest_3_3').value = 1;
@@ -499,6 +648,7 @@
             document.getElementById('ld_3').value = 60;
 
             // Restricción 4: Arroz
+            document.getElementById('nombre_rest_4').value = restNames[3];
             document.getElementById('rest_4_1').value = 2;
             document.getElementById('rest_4_2').value = 1.5;
             document.getElementById('rest_4_3').value = 1;
@@ -513,6 +663,7 @@
             document.getElementById('tipoProblema').value = 'maximizacion';
             document.getElementById('numVariables').value = 2;
             document.getElementById('numRestricciones').value = 1;
+            localStorage.clear();
             generarVariables();
             generarRestricciones();
             document.getElementById('resultados').style.display = 'none';
@@ -526,14 +677,19 @@
             const tipo = document.getElementById('tipoProblema').value;
 
             const c = [];
+            const varNames = [];
             for (let i = 1; i <= numVar; i++) {
                 const coef = parseFloat(document.getElementById(`coef_${i}`).value) || 0;
+                const label = document.getElementById(`label_${i}`);
+                const varName = label ? label.textContent.replace(':', '').trim() : `x${i}`;
                 c.push(tipo === 'maximizacion' ? coef : -coef);
+                varNames.push(varName);
             }
 
             const A = [];
             const b = [];
             const operadores = [];
+            const restNames = [];
 
             for (let i = 1; i <= numRest; i++) {
                 const fila = [];
@@ -543,9 +699,11 @@
                 A.push(fila);
                 b.push(parseFloat(document.getElementById(`ld_${i}`).value) || 0);
                 operadores.push(document.getElementById(`oper_${i}`).value);
+                const nombreRest = document.getElementById(`nombre_rest_${i}`).value || `Restricción ${i}`;
+                restNames.push(nombreRest);
             }
 
-            return { c, A, b, numVar, numRest, operadores, tipo };
+            return { c, A, b, numVar, numRest, operadores, tipo, varNames, restNames };
         }
 
         // RESOLVER PROBLEMA CON SIMPLEX
@@ -562,7 +720,7 @@
 
         // ALGORITMO SIMPLEX
         function resolverSimplex(datos) {
-            let { c, A, b, numVar, numRest, operadores, tipo } = datos;
+            let { c, A, b, numVar, numRest, operadores, tipo, varNames } = datos;
 
             // Convertir a forma estándar
             let numVariablesAmpliada = numVar;
@@ -709,7 +867,8 @@
                 iteraciones,
                 numVariablesAmpliada,
                 numVar,
-                tipo
+                tipo,
+                varNames
             };
         }
 
@@ -728,7 +887,7 @@
             // Valor de Z
             html += `
                 <div class="result-item">
-                    <strong>Valor de la Función Objetivo (Z):</strong><br>
+                    <strong>💰 Valor de la Función Objetivo (Z):</strong><br>
                     Z = <span class="result-value">${solucion.valorZ.toFixed(2)}</span> 
                     <span style="font-size: 0.9em; color: #666;">
                         (${solucion.tipo === 'maximizacion' ? 'Máximo' : 'Mínimo'})
@@ -737,10 +896,11 @@
             `;
 
             // Valores de variables
-            html += '<div class="result-item"><strong>Valores de Variables Decisión:</strong><br>';
+            html += '<div class="result-item"><strong>📦 Valores de Variables Decisión:</strong><br>';
             for (let i = 0; i < solucion.numVar; i++) {
                 const valor = solucion.solucion[i].toFixed(4);
-                html += `x${i + 1} = ${valor}<br>`;
+                const nombreVar = datos.varNames[i] || `x${i + 1}`;
+                html += `<div class="result-detail"><strong>${nombreVar}:</strong> ${valor}</div>`;
             }
             html += '</div>';
 
