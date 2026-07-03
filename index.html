@@ -756,16 +756,17 @@
                 basicas[filaSalida] = colEntrada;
             }
 
-            // Extraer solución
+            // Extraer solución - CORRECCIÓN AQUÍ
             let solucion = new Array(numVar).fill(0);
             
-            for (let i = 0; i < numRest; i++) {
+            for (let i = 0; i < basicas.length; i++) {
+                // Si la variable básica es una variable de decisión (no de holgura)
                 if (basicas[i] < numVar) {
                     solucion[basicas[i]] = tabla[i][numTotal];
                 }
             }
 
-            let valorZ = tabla[numRest][numTotal];
+            let valorZ = Math.abs(tabla[numRest][numTotal]); // Valor absoluto porque está en negativo
 
             return {
                 solucion,
