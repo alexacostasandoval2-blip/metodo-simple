@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solver Método Simplex - Programación Lineal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        table tr:nth-child(even) {
+            background: white;
+        }
+
+        table tr:hover {
+            background: #f0f0f0;
+        }
+
+        table input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-add {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .btn-add:hover {
+            background: #218838;
+        }
+
+        .btn-remove {
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.85em;
+        }
+
+        .btn-remove:hover {
+            background: #c82333;
+        }
+
+        .results {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .results h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+
+        .result-item strong {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .result-value {
+            color: #28a745;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .simplex-table {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            color: #1565c0;
+            margin: 5px 0;
+        }
+
+        .error-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            color: #c62828;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            color: #2e7d32;
+        }
+
+        .iteration-box {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .iteration-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .datos-precargar {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .datos-precargar button {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            background: #17a2b8;
+            color: white;
+        }
+
+        .datos-precargar button:hover {
+            background: #138496;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .table-container {
+                font-size: 0.9em;
+            }
+
+            table th, table td {
+                padding: 8px 5px;
+            }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Solver Método Simplex</h1>
+            <p>Resuelve problemas de programación lineal automáticamente</p>
+        </div>
+
+        <div class="content">
+            <!-- Sección de Entrada -->
+            <div class="section">
+                <h2>📋 Configuración del Problema</h2>
+                
+                <div class="datos-precargar">
+                    <button onclick="cargarDatosPollosRosita()">📍 Pollos Rosita</button>
+                    <button onclick="limpiarFormulario()">🔄 Limpiar</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Problema:</label>
+                    <select id="tipoProblema" onchange="actualizarFormulario()">
+                        <option value="maximizacion">Maximización</option>
+                        <option value="minimizacion">Minimización</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre del Problema:</label>
+                    <input type="text" id="nombreProblema" placeholder="ej: Pollos Rosita" value="Pollos Rosita">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de Variables Decisión:</label>
+                    <input type="number" id="numVariables" min="2" max="10" value="4" onchange="generarVariables()">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de Restricciones:</label>
+                    <input type="number" id="numRestricciones" min="1" max="10" value="4" onchange="generarRestricciones()">
+                </div>
+
+                <h3 style="margin-top: 20px; color: #333;">Función Objetivo</h3>
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Coeficientes de Max/Min Z:</p>
+                <div id="coeficientesObjetivo"></div>
+
+                <h3 style="margin-top: 20px; color: #333;">Restricciones</h3>
+                <div id="restricciones"></div>
+            </div>
+
+            <!-- Sección de Resultados -->
+            <div class="section results" id="resultados" style="display: none;">
+                <h2>✅ Solución Óptima</h2>
+                <div id="contenidoResultados"></div>
+            </div>
+
+            <!-- Sección de Método Simplex Detallado -->
+            <div class="section" id="detallesSimplex" style="grid-column: 1 / -1; display: none;">
+                <h2>🔍 Detalle del Método Simplex</h2>
+                <div id="detallesIteraciones"></div>
+            </div>
+        </div>
+
+        <div style="padding: 0 30px 30px 30px;">
+            <div class="btn-container">
+                <button class="btn-primary" onclick="resolverProblema()">▶️ Resolver Problema</button>
+                <button class="btn-secondary" onclick="toggleDetalles()">📊 Mostrar Detalles</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // INICIALIZACIÓN
+        window.addEventListener('load', () => {
+            generarVariables();
+            generarRestricciones();
+            cargarDatosPollosRosita();
+        });
+
+        // GENERAR VARIABLES
+        function generarVariables() {
+            const num = parseInt(document.getElementById('numVariables').value);
+            const container = document.getElementById('coeficientesObjetivo');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= num; i++) {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                div.innerHTML = `
+                    <label>x${i}:</label>
+                    <input type="number" id="coef_${i}" placeholder="Coeficiente de x${i}" value="0" step="0.01">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // GENERAR RESTRICCIONES
+        function generarRestricciones() {
+            const numVar = parseInt(document.getElementById('numVariables').value);
+            const numRest = parseInt(document.getElementById('numRestricciones').value);
+            const container = document.getElementById('restricciones');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= numRest; i++) {
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
+                div.style.paddingBottom = '20px';
+                div.style.borderBottom = '1px solid #ddd';
+
+                let html = `<strong>Restricción ${i}:</strong><div class="table-container"><table><tr>`;
+                
+                for (let j = 1; j <= numVar; j++) {
+                    html += `<th>x${j}</th>`;
+                }
+                html += `<th>Operador</th><th>LD</th></tr><tr>`;
+
+                for (let j = 1; j <= numVar; j++) {
+                    html += `<td><input type="number" id="rest_${i}_${j}" placeholder="0" value="0" step="0.01"></td>`;
+                }
+
+                html += `<td><select id="oper_${i}">
+                    <option value="<=">≤</option>
+                    <option value=">=">=</option>
+                    <option value="=">=</option>
+                </select></td>
+                <td><input type="number" id="ld_${i}" placeholder="Lado Derecho" value="0" step="0.01"></td>
+                </tr></table></div>`;
+
+                div.innerHTML = html;
+                container.appendChild(div);
+            }
+        }
+
+        // CARGAR DATOS POLLOS ROSITA
+        function cargarDatosPollosRosita() {
+            document.getElementById('nombreProblema').value = 'Pollos Rosita - Restaurante';
+            document.getElementById('tipoProblema').value = 'maximizacion';
+            document.getElementById('numVariables').value = 4;
+            document.getElementById('numRestricciones').value = 4;
+            
+            generarVariables();
+            generarRestricciones();
+
+            // Coeficientes función objetivo (Utilidades)
+            document.getElementById('coef_1').value = 60;  // Pollo entero
+            document.getElementById('coef_2').value = 35;  // Medio pollo
+            document.getElementById('coef_3').value = 20;  // Cuarto de pollo
+            document.getElementById('coef_4').value = 25;  // Alitas
+
+            // Restricción 1: Pollo fresco
+            document.getElementById('rest_1_1').value = 4;
+            document.getElementById('rest_1_2').value = 2;
+            document.getElementById('rest_1_3').value = 1;
+            document.getElementById('rest_1_4').value = 1;
+            document.getElementById('oper_1').value = '<=';
+            document.getElementById('ld_1').value = 720;
+
+            // Restricción 2: Papas fritas
+            document.getElementById('rest_2_1').value = 5;
+            document.getElementById('rest_2_2').value = 3;
+            document.getElementById('rest_2_3').value = 2;
+            document.getElementById('rest_2_4').value = 1;
+            document.getElementById('oper_2').value = '<=';
+            document.getElementById('ld_2').value = 900;
+
+            // Restricción 3: Horas de trabajo
+            document.getElementById('rest_3_1').value = 3;
+            document.getElementById('rest_3_2').value = 2;
+            document.getElementById('rest_3_3').value = 1;
+            document.getElementById('rest_3_4').value = 1;
+            document.getElementById('oper_3').value = '<=';
+            document.getElementById('ld_3').value = 60;
+
+            // Restricción 4: Arroz
+            document.getElementById('rest_4_1').value = 2;
+            document.getElementById('rest_4_2').value = 1.5;
+            document.getElementById('rest_4_3').value = 1;
+            document.getElementById('rest_4_4').value = 0.5;
+            document.getElementById('oper_4').value = '<=';
+            document.getElementById('ld_4').value = 450;
+        }
+
+        // LIMPIAR FORMULARIO
+        function limpiarFormulario() {
+            document.getElementById('nombreProblema').value = '';
+            document.getElementById('tipoProblema').value = 'maximizacion';
+            document.getElementById('numVariables').value = 2;
+            document.getElementById('numRestricciones').value = 1;
+            generarVariables();
+            generarRestricciones();
+            document.getElementById('resultados').style.display = 'none';
+            document.getElementById('detallesSimplex').style.display = 'none';
+        }
+
+        // OBTENER DATOS DEL FORMULARIO
+        function obtenerDatos() {
+            const numVar = parseInt(document.getElementById('numVariables').value);
+            const numRest = parseInt(document.getElementById('numRestricciones').value);
+            const tipo = document.getElementById('tipoProblema').value;
+
+            const c = [];
+            for (let i = 1; i <= numVar; i++) {
+                const coef = parseFloat(document.getElementById(`coef_${i}`).value) || 0;
+                c.push(tipo === 'maximizacion' ? coef : -coef);
+            }
+
+            const A = [];
+            const b = [];
+            const operadores = [];
+
+            for (let i = 1; i <= numRest; i++) {
+                const fila = [];
+                for (let j = 1; j <= numVar; j++) {
+                    fila.push(parseFloat(document.getElementById(`rest_${i}_${j}`).value) || 0);
+                }
+                A.push(fila);
+                b.push(parseFloat(document.getElementById(`ld_${i}`).value) || 0);
+                operadores.push(document.getElementById(`oper_${i}`).value);
+            }
+
+            return { c, A, b, numVar, numRest, operadores, tipo };
+        }
+
+        // RESOLVER PROBLEMA CON SIMPLEX
+        function resolverProblema() {
+            try {
+                const datos = obtenerDatos();
+                const solucion = resolverSimplex(datos);
+                mostrarResultados(solucion, datos);
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // ALGORITMO SIMPLEX
+        function resolverSimplex(datos) {
+            let { c, A, b, numVar, numRest, operadores, tipo } = datos;
+
+            // Convertir a forma estándar
+            let numVariablesAmpliada = numVar;
+            let numVariablesHolgura = numRest;
+
+            // Agregar variables de holgura
+            for (let i = 0; i < numRest; i++) {
+                if (operadores[i] === '<=') {
+                    for (let j = 0; j < A.length; j++) {
+                        A[j].push(i === j ? 1 : 0);
+                    }
+                    numVariablesAmpliada++;
+                } else if (operadores[i] === '>=') {
+                    for (let j = 0; j < A.length; j++) {
+                        A[j].push(i === j ? -1 : 0);
+                    }
+                    numVariablesAmpliada++;
+                }
+            }
+
+            // Agregar variables artificiales si es necesario
+            let numVariablesArtificiales = 0;
+            for (let i = 0; i < numRest; i++) {
+                if (operadores[i] === '>=' || operadores[i] === '=') {
+                    for (let j = 0; j < A.length; j++) {
+                        A[j].push(i === j ? 1 : 0);
+                    }
+                    numVariablesArtificiales++;
+                    numVariablesAmpliada++;
+                }
+            }
+
+            // Construir tabla simplex
+            let tabla = [];
+            for (let i = 0; i < numRest; i++) {
+                tabla.push([...A[i], b[i]]);
+            }
+
+            // Fila de costos
+            let costos = [...c];
+            while (costos.length < numVariablesAmpliada) {
+                costos.push(0);
+            }
+
+            tabla.push(costos.map(x => -x));
+
+            // Variables básicas iniciales
+            let basicas = [];
+            for (let i = numVar; i < numVar + numVariablesHolgura; i++) {
+                basicas.push(i);
+            }
+            if (numVariablesArtificiales > 0) {
+                basicas = basicas.slice(0, numRest - numVariablesArtificiales);
+                for (let i = numVariablesAmpliada - numVariablesArtificiales; i < numVariablesAmpliada; i++) {
+                    basicas.push(i);
+                }
+            }
+
+            // Iteraciones simplex
+            let iteraciones = [];
+            let iteracion = 0;
+            const maxIteraciones = 1000;
+
+            while (iteracion < maxIteraciones) {
+                iteracion++;
+                
+                // Guardar estado actual
+                let estadoActual = {
+                    iteracion,
+                    tabla: tabla.map(fila => [...fila]),
+                    basicas: [...basicas]
+                };
+
+                // Buscar columna pivote (menor valor negativo)
+                let filaCostos = tabla[tabla.length - 1];
+                let minVal = 0;
+                let colPivote = -1;
+
+                for (let j = 0; j < numVariablesAmpliada; j++) {
+                    if (filaCostos[j] < minVal) {
+                        minVal = filaCostos[j];
+                        colPivote = j;
+                    }
+                }
+
+                if (colPivote === -1) break; // Solución óptima encontrada
+
+                // Buscar fila pivote (razón mínima)
+                let minRazon = Infinity;
+                let filaPivote = -1;
+
+                for (let i = 0; i < numRest; i++) {
+                    if (tabla[i][colPivote] > 0) {
+                        let razon = tabla[i][numVariablesAmpliada] / tabla[i][colPivote];
+                        if (razon < minRazon) {
+                            minRazon = razon;
+                            filaPivote = i;
+                        }
+                    }
+                }
+
+                if (filaPivote === -1) {
+                    return { error: 'Problema no acotado' };
+                }
+
+                estadoActual.pivote = { fila: filaPivote, columna: colPivote };
+
+                // Pivoteo
+                let pivote = tabla[filaPivote][colPivote];
+                for (let j = 0; j <= numVariablesAmpliada; j++) {
+                    tabla[filaPivote][j] /= pivote;
+                }
+
+                for (let i = 0; i < tabla.length; i++) {
+                    if (i !== filaPivote) {
+                        let factor = tabla[i][colPivote];
+                        for (let j = 0; j <= numVariablesAmpliada; j++) {
+                            tabla[i][j] -= factor * tabla[filaPivote][j];
+                        }
+                    }
+                }
+
+                basicas[filaPivote] = colPivote;
+                iteraciones.push(estadoActual);
+            }
+
+            // Extraer solución
+            let solucion = new Array(numVar).fill(0);
+            let valorZ = 0;
+
+            for (let i = 0; i < numRest; i++) {
+                if (basicas[i] < numVar) {
+                    solucion[basicas[i]] = tabla[i][numVariablesAmpliada];
+                }
+            }
+
+            valorZ = -tabla[tabla.length - 1][numVariablesAmpliada];
+            if (tipo === 'minimizacion') valorZ = -valorZ;
+
+            return {
+                solucion,
+                valorZ,
+                basicas,
+                iteraciones,
+                numVariablesAmpliada,
+                numVar,
+                tipo
+            };
+        }
+
+        // MOSTRAR RESULTADOS
+        function mostrarResultados(solucion, datos) {
+            const container = document.getElementById('contenidoResultados');
+            
+            if (solucion.error) {
+                container.innerHTML = `<div class="error-box">${solucion.error}</div>`;
+                document.getElementById('resultados').style.display = 'block';
+                return;
+            }
+
+            let html = '';
+
+            // Valor de Z
+            html += `
+                <div class="result-item">
+                    <strong>Valor de la Función Objetivo (Z):</strong><br>
+                    Z = <span class="result-value">${solucion.valorZ.toFixed(2)}</span> 
+                    <span style="font-size: 0.9em; color: #666;">
+                        (${solucion.tipo === 'maximizacion' ? 'Máximo' : 'Mínimo'})
+                    </span>
+                </div>
+            `;
+
+            // Valores de variables
+            html += '<div class="result-item"><strong>Valores de Variables Decisión:</strong><br>';
+            for (let i = 0; i < solucion.numVar; i++) {
+                const valor = solucion.solucion[i].toFixed(4);
+                html += `x${i + 1} = ${valor}<br>`;
+            }
+            html += '</div>';
+
+            // Análisis
+            html += `
+                <div class="success-box">
+                    <strong>✓ Solución Óptima Encontrada</strong><br>
+                    Iteraciones realizadas: ${solucion.iteraciones.length}
+                </div>
+            `;
+
+            container.innerHTML = html;
+            document.getElementById('resultados').style.display = 'block';
+
+            // Guardar para detalles
+            window.ultimaSolucion = solucion;
+        }
+
+        // TOGGLE DETALLES
+        function toggleDetalles() {
+            const detalles = document.getElementById('detallesSimplex');
+            if (!window.ultimaSolucion) {
+                alert('Primero resuelve un problema');
+                return;
+            }
+
+            if (detalles.style.display === 'none') {
+                mostrarDetallesSimplex();
+                detalles.style.display = 'block';
+            } else {
+                detalles.style.display = 'none';
+            }
+        }
+
+        // MOSTRAR DETALLES SIMPLEX
+        function mostrarDetallesSimplex() {
+            const container = document.getElementById('detallesIteraciones');
+            const solucion = window.ultimaSolucion;
+
+            let html = '';
+            for (let iter of solucion.iteraciones.slice(0, 10)) { // Mostrar máximo 10 iteraciones
+                html += `
+                    <div class="iteration-box">
+                        <h4>Iteración ${iter.iteracion}</h4>
+                        <p><strong>Pivote:</strong> Fila ${iter.pivote.fila + 1}, Columna ${iter.pivote.columna + 1}</p>
+                        <p><strong>Variables básicas:</strong> ${iter.basicas.join(', ')}</p>
+                    </div>
+                `;
+            }
+
+            if (solucion.iteraciones.length > 10) {
+                html += `<div class="info-box"><p>... y ${solucion.iteraciones.length - 10} iteraciones más</p></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ACTUALIZAR FORMULARIO
+        function actualizarFormulario() {
+            // Se puede agregar lógica adicional si es necesario
+        }
+    </script>
+</body>
+</html>
