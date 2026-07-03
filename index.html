@@ -99,20 +99,21 @@
 
         .variable-input-group {
             background: white;
-            padding: 12px;
+            padding: 15px;
             border-radius: 6px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             border-left: 3px solid #28a745;
             display: flex;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
         }
 
         .variable-input-group label {
             margin: 0;
-            min-width: 150px;
+            min-width: 220px;
             font-weight: 600;
             color: #333;
+            font-size: 0.95em;
         }
 
         .variable-input-group input {
@@ -133,7 +134,7 @@
         }
 
         table th, table td {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             border: 1px solid #ddd;
             font-size: 0.9em;
@@ -155,7 +156,7 @@
 
         table input {
             width: 100%;
-            padding: 5px;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 3px;
             text-align: center;
@@ -266,29 +267,24 @@
 
         .result-value {
             color: #28a745;
-            font-size: 1.3em;
+            font-size: 1.5em;
             font-weight: bold;
         }
 
         .result-detail {
             background: #f8f9fa;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
-            margin: 5px 0;
+            margin: 8px 0;
             font-size: 0.95em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .result-detail strong {
             color: #667eea;
             font-size: 1em;
-        }
-
-        .simplex-table {
-            background: white;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            overflow-x: auto;
         }
 
         .info-box {
@@ -343,14 +339,40 @@
         }
 
         .datos-precargar button {
-            padding: 8px 12px;
+            padding: 10px 15px;
             font-size: 0.9em;
             background: #17a2b8;
             color: white;
+            flex: 1;
+            min-width: 120px;
         }
 
         .datos-precargar button:hover {
             background: #138496;
+        }
+
+        .table-simplex {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.85em;
+            margin: 15px 0;
+        }
+
+        .table-simplex th, .table-simplex td {
+            border: 1px solid #999;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .table-simplex th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .table-simplex tr:nth-child(odd) {
+            background: #f9f9f9;
         }
 
         @media (max-width: 768px) {
@@ -379,27 +401,12 @@
                 padding: 6px 3px;
             }
         }
-
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Solver Método Simplex</h1>
+            <h1>🍗 Solver Método Simplex - Pollos Rosita</h1>
             <p>Resuelve problemas de programación lineal automáticamente</p>
         </div>
 
@@ -409,38 +416,15 @@
                 <h2>📋 Configuración del Problema</h2>
                 
                 <div class="datos-precargar">
-                    <button onclick="cargarDatosPollosRosita()">📍 Pollos Rosita</button>
+                    <button onclick="cargarDatosPollosRosita()">📍 Cargar Pollos Rosita</button>
                     <button onclick="limpiarFormulario()">🔄 Limpiar</button>
                 </div>
 
-                <div class="form-group">
-                    <label>Tipo de Problema:</label>
-                    <select id="tipoProblema" onchange="actualizarFormulario()">
-                        <option value="maximizacion">Maximización</option>
-                        <option value="minimizacion">Minimización</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre del Problema:</label>
-                    <input type="text" id="nombreProblema" placeholder="ej: Pollos Rosita" value="Pollos Rosita">
-                </div>
-
-                <div class="form-group">
-                    <label>Número de Variables Decisión:</label>
-                    <input type="number" id="numVariables" min="2" max="10" value="4" onchange="generarVariables()">
-                </div>
-
-                <div class="form-group">
-                    <label>Número de Restricciones:</label>
-                    <input type="number" id="numRestricciones" min="1" max="10" value="4" onchange="generarRestricciones()">
-                </div>
-
-                <h3>📊 Función Objetivo (Max/Min Z)</h3>
-                <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Ingresa los coeficientes de utilidad o costo para cada variable:</p>
+                <h3>💰 Función Objetivo (Utilidades por unidad en Bs.)</h3>
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Ingresa la utilidad que genera cada producto:</p>
                 <div id="coeficientesObjetivo"></div>
 
-                <h3>🔐 Restricciones</h3>
+                <h3>🔐 Restricciones (Recursos Disponibles por día)</h3>
                 <div id="restricciones"></div>
             </div>
 
@@ -452,7 +436,7 @@
 
             <!-- Sección de Método Simplex Detallado -->
             <div class="section" id="detallesSimplex" style="grid-column: 1 / -1; display: none;">
-                <h2>🔍 Detalle del Método Simplex</h2>
+                <h2>🔍 Tablas del Método Simplex</h2>
                 <div id="detallesIteraciones"></div>
             </div>
         </div>
@@ -460,7 +444,7 @@
         <div style="padding: 0 30px 30px 30px;">
             <div class="btn-container">
                 <button class="btn-primary" onclick="resolverProblema()">▶️ Resolver Problema</button>
-                <button class="btn-secondary" onclick="toggleDetalles()">📊 Mostrar Detalles</button>
+                <button class="btn-secondary" onclick="toggleDetalles()">📊 Mostrar Tablas</button>
             </div>
         </div>
     </div>
@@ -468,109 +452,91 @@
     <script>
         // INICIALIZACIÓN
         window.addEventListener('load', () => {
-            generarVariables();
-            generarRestricciones();
             cargarDatosPollosRosita();
         });
 
-        // GENERAR VARIABLES CON NOMBRES DESCRIPTIVOS
+        // GENERAR VARIABLES
         function generarVariables() {
-            const num = parseInt(document.getElementById('numVariables').value);
             const container = document.getElementById('coeficientesObjetivo');
             container.innerHTML = '';
 
-            // Nombres por defecto descriptivos
-            const nombresDefault = [
-                'Pollo Entero',
-                'Medio Pollo',
-                'Cuarto de Pollo',
-                'Alitas',
-                'Piezas Mixtas',
-                'Muslos',
-                'Pechugas',
-                'Milanesas',
-                'Empanadas',
-                'Complementos'
+            const variables = [
+                { nombre: 'x₁ - Pollo Entero', unidad: 'Bs. 60' },
+                { nombre: 'x₂ - Medio Pollo', unidad: 'Bs. 35' },
+                { nombre: 'x₃ - Cuarto de Pollo', unidad: 'Bs. 20' },
+                { nombre: 'x₄ - Alitas Broaster', unidad: 'Bs. 25' }
             ];
 
-            for (let i = 1; i <= num; i++) {
+            for (let i = 0; i < 4; i++) {
                 const div = document.createElement('div');
                 div.className = 'variable-input-group';
                 
-                let nombre = localStorage.getItem(`var_nombre_${i}`) || nombresDefault[i-1] || `Variable ${i}`;
-                let coef = localStorage.getItem(`var_coef_${i}`) || 0;
+                let coef = localStorage.getItem(`coef_${i+1}`) || 0;
                 
                 div.innerHTML = `
-                    <label id="label_${i}">${nombre}:</label>
+                    <label>${variables[i].nombre}:</label>
                     <input type="number" 
-                           id="coef_${i}" 
-                           placeholder="Coeficiente" 
+                           id="coef_${i+1}" 
+                           placeholder="Utilidad en Bs." 
                            value="${coef}" 
-                           step="0.01"
-                           onchange="guardarNombreVariable(${i})">
+                           step="0.01">
                 `;
                 container.appendChild(div);
             }
         }
 
-        // GENERAR RESTRICCIONES CON NOMBRES
+        // GENERAR RESTRICCIONES
         function generarRestricciones() {
-            const numVar = parseInt(document.getElementById('numVariables').value);
-            const numRest = parseInt(document.getElementById('numRestricciones').value);
             const container = document.getElementById('restricciones');
             container.innerHTML = '';
 
-            const nombresDefault = [
-                'Disponibilidad de Pollo Fresco',
-                'Disponibilidad de Papas Fritas',
-                'Horas de Trabajo',
-                'Disponibilidad de Arroz',
-                'Ingredientes Especiales',
-                'Capacidad de Almacén',
-                'Pedidos Mínimos',
-                'Presupuesto de Producción',
-                'Recurso 9',
-                'Recurso 10'
+            const restricciones = [
+                { nombre: '🍗 Pollo Fresco (porciones)', recurso: 'porciones', disponible: 720 },
+                { nombre: '🍟 Papas Fritas (porciones)', recurso: 'porciones', disponible: 900 },
+                { nombre: '⏱️  Horas de Trabajo (horas)', recurso: 'horas', disponible: 60 },
+                { nombre: '🍚 Arroz (kg)', recurso: 'kg', disponible: 450 }
             ];
 
-            for (let i = 1; i <= numRest; i++) {
+            for (let i = 0; i < 4; i++) {
                 const div = document.createElement('div');
                 div.className = 'restriction-box';
 
-                let nombreRest = localStorage.getItem(`rest_nombre_${i}`) || nombresDefault[i-1] || `Restricción ${i}`;
+                let nombreRest = localStorage.getItem(`rest_nombre_${i+1}`) || restricciones[i].nombre;
 
                 let html = `
-                    <h4>Restricción ${i}</h4>
-                    <div class="restriction-name">
-                        <label>Nombre:</label>
-                        <input type="text" 
-                               id="nombre_rest_${i}" 
-                               value="${nombreRest}"
-                               placeholder="Nombre de la restricción"
-                               onchange="guardarNombreRestriccion(${i})">
-                    </div>
+                    <h4>${restricciones[i].nombre}</h4>
                     <div class="table-container">
                         <table>
                             <tr>
+                                <th>x₁ Pollo Entero</th>
+                                <th>x₂ Medio Pollo</th>
+                                <th>x₃ Cuarto Pollo</th>
+                                <th>x₄ Alitas</th>
+                                <th>Operador</th>
+                                <th>Disponible</th>
+                            </tr>
+                            <tr>
                 `;
-                
-                for (let j = 1; j <= numVar; j++) {
-                    let varName = localStorage.getItem(`var_nombre_${j}`) || nombresDefault[j-1] || `x${j}`;
-                    html += `<th>${varName}</th>`;
-                }
-                html += `<th>Operador</th><th>Disponibilidad</th></tr><tr>`;
 
-                for (let j = 1; j <= numVar; j++) {
-                    let coef = localStorage.getItem(`rest_${i}_${j}`) || 0;
-                    html += `<td><input type="number" id="rest_${i}_${j}" placeholder="0" value="${coef}" step="0.01"></td>`;
+                // Coeficientes de recursos por variable (consumo por unidad)
+                const recursos = [
+                    [4, 2, 1, 1],      // Pollo fresco
+                    [5, 3, 2, 1],      // Papas fritas
+                    [3, 2, 1, 1],      // Horas de trabajo
+                    [2, 1.5, 1, 0.5]   // Arroz
+                ];
+
+                for (let j = 0; j < 4; j++) {
+                    let coef = localStorage.getItem(`rest_${i+1}_${j+1}`) || recursos[i][j];
+                    html += `<td><input type="number" id="rest_${i+1}_${j+1}" placeholder="0" value="${coef}" step="0.01"></td>`;
                 }
 
-                html += `<td><select id="oper_${i}">
-                    <option value="<=">≤</option>
+                html += `<td><select id="oper_${i+1}">
+                    <option value="<=" selected>≤</option>
                     <option value=">=">=</option>
                     <option value="=">=</option>
                 </select></td>
-                <td><input type="number" id="ld_${i}" placeholder="Límite" value="0" step="0.01"></td>
+                <td><input type="number" id="ld_${i+1}" placeholder="Límite" value="${localStorage.getItem(`ld_${i+1}`) || restricciones[i].disponible}" step="0.01"></td>
                 </tr></table>
                     </div>
                 `;
@@ -580,48 +546,18 @@
             }
         }
 
-        // GUARDAR NOMBRES EN LOCALSTORAGE
-        function guardarNombreVariable(index) {
-            const label = document.getElementById(`label_${index}`);
-            if (label) {
-                const nombreInput = document.querySelector(`#coef_${index}`).previousElementSibling.textContent.replace(':', '').trim();
-                localStorage.setItem(`var_nombre_${index}`, nombreInput);
-            }
-        }
-
-        function guardarNombreRestriccion(index) {
-            const nombre = document.getElementById(`nombre_rest_${index}`).value;
-            localStorage.setItem(`rest_nombre_${index}`, nombre);
-        }
-
         // CARGAR DATOS POLLOS ROSITA
         function cargarDatosPollosRosita() {
-            document.getElementById('nombreProblema').value = 'Pollos Rosita - Restaurante';
-            document.getElementById('tipoProblema').value = 'maximizacion';
-            document.getElementById('numVariables').value = 4;
-            document.getElementById('numRestricciones').value = 4;
-            
             generarVariables();
             generarRestricciones();
 
-            // Variables con nombres
-            const varNames = ['Pollo Entero', 'Medio Pollo', 'Cuarto de Pollo', 'Alitas'];
-            const restNames = ['Disponibilidad de Pollo Fresco', 'Disponibilidad de Papas Fritas', 'Horas de Trabajo', 'Disponibilidad de Arroz'];
-
-            // Coeficientes función objetivo (Utilidades)
-            document.getElementById('coef_1').value = 60;  // Pollo entero
-            document.getElementById('coef_2').value = 35;  // Medio pollo
-            document.getElementById('coef_3').value = 20;  // Cuarto de pollo
-            document.getElementById('coef_4').value = 25;  // Alitas
-
-            // Actualizar labels
-            for (let i = 1; i <= 4; i++) {
-                const label = document.getElementById(`label_${i}`);
-                if (label) label.textContent = varNames[i-1] + ':';
-            }
+            // Utilidades (coeficientes función objetivo) en Bs.
+            document.getElementById('coef_1').value = 60;   // Pollo entero
+            document.getElementById('coef_2').value = 35;   // Medio pollo
+            document.getElementById('coef_3').value = 20;   // Cuarto de pollo
+            document.getElementById('coef_4').value = 25;   // Alitas
 
             // Restricción 1: Pollo fresco
-            document.getElementById('nombre_rest_1').value = restNames[0];
             document.getElementById('rest_1_1').value = 4;
             document.getElementById('rest_1_2').value = 2;
             document.getElementById('rest_1_3').value = 1;
@@ -630,7 +566,6 @@
             document.getElementById('ld_1').value = 720;
 
             // Restricción 2: Papas fritas
-            document.getElementById('nombre_rest_2').value = restNames[1];
             document.getElementById('rest_2_1').value = 5;
             document.getElementById('rest_2_2').value = 3;
             document.getElementById('rest_2_3').value = 2;
@@ -639,7 +574,6 @@
             document.getElementById('ld_2').value = 900;
 
             // Restricción 3: Horas de trabajo
-            document.getElementById('nombre_rest_3').value = restNames[2];
             document.getElementById('rest_3_1').value = 3;
             document.getElementById('rest_3_2').value = 2;
             document.getElementById('rest_3_3').value = 1;
@@ -648,7 +582,6 @@
             document.getElementById('ld_3').value = 60;
 
             // Restricción 4: Arroz
-            document.getElementById('nombre_rest_4').value = restNames[3];
             document.getElementById('rest_4_1').value = 2;
             document.getElementById('rest_4_2').value = 1.5;
             document.getElementById('rest_4_3').value = 1;
@@ -659,10 +592,6 @@
 
         // LIMPIAR FORMULARIO
         function limpiarFormulario() {
-            document.getElementById('nombreProblema').value = '';
-            document.getElementById('tipoProblema').value = 'maximizacion';
-            document.getElementById('numVariables').value = 2;
-            document.getElementById('numRestricciones').value = 1;
             localStorage.clear();
             generarVariables();
             generarRestricciones();
@@ -672,45 +601,43 @@
 
         // OBTENER DATOS DEL FORMULARIO
         function obtenerDatos() {
-            const numVar = parseInt(document.getElementById('numVariables').value);
-            const numRest = parseInt(document.getElementById('numRestricciones').value);
-            const tipo = document.getElementById('tipoProblema').value;
-
             const c = [];
             const varNames = [];
-            for (let i = 1; i <= numVar; i++) {
-                const coef = parseFloat(document.getElementById(`coef_${i}`).value) || 0;
-                const label = document.getElementById(`label_${i}`);
-                const varName = label ? label.textContent.replace(':', '').trim() : `x${i}`;
-                c.push(tipo === 'maximizacion' ? coef : -coef);
-                varNames.push(varName);
+            const variables = [
+                'Pollo Entero',
+                'Medio Pollo',
+                'Cuarto de Pollo',
+                'Alitas Broaster'
+            ];
+
+            for (let i = 0; i < 4; i++) {
+                const coef = parseFloat(document.getElementById(`coef_${i+1}`).value) || 0;
+                c.push(coef);
+                varNames.push(variables[i]);
             }
 
             const A = [];
             const b = [];
             const operadores = [];
-            const restNames = [];
 
-            for (let i = 1; i <= numRest; i++) {
+            for (let i = 0; i < 4; i++) {
                 const fila = [];
-                for (let j = 1; j <= numVar; j++) {
-                    fila.push(parseFloat(document.getElementById(`rest_${i}_${j}`).value) || 0);
+                for (let j = 0; j < 4; j++) {
+                    fila.push(parseFloat(document.getElementById(`rest_${i+1}_${j+1}`).value) || 0);
                 }
                 A.push(fila);
-                b.push(parseFloat(document.getElementById(`ld_${i}`).value) || 0);
-                operadores.push(document.getElementById(`oper_${i}`).value);
-                const nombreRest = document.getElementById(`nombre_rest_${i}`).value || `Restricción ${i}`;
-                restNames.push(nombreRest);
+                b.push(parseFloat(document.getElementById(`ld_${i+1}`).value) || 0);
+                operadores.push(document.getElementById(`oper_${i+1}`).value);
             }
 
-            return { c, A, b, numVar, numRest, operadores, tipo, varNames, restNames };
+            return { c, A, b, numVar: 4, numRest: 4, operadores, varNames };
         }
 
-        // RESOLVER PROBLEMA CON SIMPLEX
+        // RESOLVER PROBLEMA
         function resolverProblema() {
             try {
                 const datos = obtenerDatos();
-                const solucion = resolverSimplex(datos);
+                const solucion = simplex(datos);
                 mostrarResultados(solucion, datos);
             } catch (error) {
                 alert('Error: ' + error.message);
@@ -718,156 +645,136 @@
             }
         }
 
-        // ALGORITMO SIMPLEX
-        function resolverSimplex(datos) {
-            let { c, A, b, numVar, numRest, operadores, tipo, varNames } = datos;
+        // ALGORITMO SIMPLEX CORRECTO
+        function simplex(datos) {
+            let { c, A, b, numVar, numRest, operadores, varNames } = datos;
 
-            // Convertir a forma estándar
-            let numVariablesAmpliada = numVar;
-            let numVariablesHolgura = numRest;
-
-            // Agregar variables de holgura
-            for (let i = 0; i < numRest; i++) {
-                if (operadores[i] === '<=') {
-                    for (let j = 0; j < A.length; j++) {
-                        A[j].push(i === j ? 1 : 0);
-                    }
-                    numVariablesAmpliada++;
-                } else if (operadores[i] === '>=') {
-                    for (let j = 0; j < A.length; j++) {
-                        A[j].push(i === j ? -1 : 0);
-                    }
-                    numVariablesAmpliada++;
-                }
-            }
-
-            // Agregar variables artificiales si es necesario
-            let numVariablesArtificiales = 0;
-            for (let i = 0; i < numRest; i++) {
-                if (operadores[i] === '>=' || operadores[i] === '=') {
-                    for (let j = 0; j < A.length; j++) {
-                        A[j].push(i === j ? 1 : 0);
-                    }
-                    numVariablesArtificiales++;
-                    numVariablesAmpliada++;
-                }
-            }
-
-            // Construir tabla simplex
+            // Paso 1: Convertir a forma estándar (agregar variables de holgura)
+            let numTotal = numVar + numRest;
             let tabla = [];
+
+            // Construir la tabla inicial
             for (let i = 0; i < numRest; i++) {
-                tabla.push([...A[i], b[i]]);
+                let fila = [];
+                // Coeficientes de variables originales
+                for (let j = 0; j < numVar; j++) {
+                    fila.push(A[i][j]);
+                }
+                // Coeficientes de variables de holgura
+                for (let j = 0; j < numRest; j++) {
+                    fila.push(i === j ? 1 : 0);
+                }
+                // Lado derecho
+                fila.push(b[i]);
+                tabla.push(fila);
             }
 
-            // Fila de costos
-            let costos = [...c];
-            while (costos.length < numVariablesAmpliada) {
-                costos.push(0);
+            // Fila de costos (Z) - con signo negativo para maximización
+            let filaZ = [];
+            for (let j = 0; j < numVar; j++) {
+                filaZ.push(-c[j]);  // Negativo para maximización
             }
+            for (let j = 0; j < numRest; j++) {
+                filaZ.push(0);
+            }
+            filaZ.push(0);  // Valor inicial de Z
+            tabla.push(filaZ);
 
-            tabla.push(costos.map(x => -x));
-
-            // Variables básicas iniciales
+            // Variables básicas iniciales (variables de holgura)
             let basicas = [];
-            for (let i = numVar; i < numVar + numVariablesHolgura; i++) {
+            for (let i = numVar; i < numTotal; i++) {
                 basicas.push(i);
             }
-            if (numVariablesArtificiales > 0) {
-                basicas = basicas.slice(0, numRest - numVariablesArtificiales);
-                for (let i = numVariablesAmpliada - numVariablesArtificiales; i < numVariablesAmpliada; i++) {
-                    basicas.push(i);
-                }
-            }
 
-            // Iteraciones simplex
             let iteraciones = [];
             let iteracion = 0;
-            const maxIteraciones = 1000;
+            const maxIteraciones = 100;
 
+            // Iteraciones del simplex
             while (iteracion < maxIteraciones) {
                 iteracion++;
-                
-                // Guardar estado actual
-                let estadoActual = {
-                    iteracion,
-                    tabla: tabla.map(fila => [...fila]),
+
+                // Guardar tabla actual
+                iteraciones.push({
+                    num: iteracion,
+                    tabla: tabla.map(f => [...f]),
                     basicas: [...basicas]
-                };
+                });
 
-                // Buscar columna pivote (menor valor negativo)
-                let filaCostos = tabla[tabla.length - 1];
+                // Paso 2: Buscar variable de entrada (columna más negativa en Z)
+                let filaZ = tabla[numRest];
+                let colEntrada = -1;
                 let minVal = 0;
-                let colPivote = -1;
 
-                for (let j = 0; j < numVariablesAmpliada; j++) {
-                    if (filaCostos[j] < minVal) {
-                        minVal = filaCostos[j];
-                        colPivote = j;
+                for (let j = 0; j < numTotal; j++) {
+                    if (filaZ[j] < minVal - 0.0001) {
+                        minVal = filaZ[j];
+                        colEntrada = j;
                     }
                 }
 
-                if (colPivote === -1) break; // Solución óptima encontrada
+                // Si no hay negativos, hemos encontrado la solución óptima
+                if (colEntrada === -1) break;
 
-                // Buscar fila pivote (razón mínima)
+                // Paso 3: Buscar variable de salida (razón mínima)
+                let filaSalida = -1;
                 let minRazon = Infinity;
-                let filaPivote = -1;
 
                 for (let i = 0; i < numRest; i++) {
-                    if (tabla[i][colPivote] > 0) {
-                        let razon = tabla[i][numVariablesAmpliada] / tabla[i][colPivote];
+                    if (tabla[i][colEntrada] > 0.0001) {
+                        let razon = tabla[i][numTotal] / tabla[i][colEntrada];
                         if (razon < minRazon) {
                             minRazon = razon;
-                            filaPivote = i;
+                            filaSalida = i;
                         }
                     }
                 }
 
-                if (filaPivote === -1) {
-                    return { error: 'Problema no acotado' };
+                if (filaSalida === -1) {
+                    return { error: 'Problema no acotado', iteraciones };
                 }
 
-                estadoActual.pivote = { fila: filaPivote, columna: colPivote };
+                // Paso 4: Pivoteo
+                let pivote = tabla[filaSalida][colEntrada];
 
-                // Pivoteo
-                let pivote = tabla[filaPivote][colPivote];
-                for (let j = 0; j <= numVariablesAmpliada; j++) {
-                    tabla[filaPivote][j] /= pivote;
+                // Dividir la fila pivote por el pivote
+                for (let j = 0; j <= numTotal; j++) {
+                    tabla[filaSalida][j] /= pivote;
                 }
 
+                // Eliminar la columna pivote en todas las otras filas
                 for (let i = 0; i < tabla.length; i++) {
-                    if (i !== filaPivote) {
-                        let factor = tabla[i][colPivote];
-                        for (let j = 0; j <= numVariablesAmpliada; j++) {
-                            tabla[i][j] -= factor * tabla[filaPivote][j];
+                    if (i !== filaSalida) {
+                        let factor = tabla[i][colEntrada];
+                        for (let j = 0; j <= numTotal; j++) {
+                            tabla[i][j] -= factor * tabla[filaSalida][j];
                         }
                     }
                 }
 
-                basicas[filaPivote] = colPivote;
-                iteraciones.push(estadoActual);
+                // Actualizar variable básica
+                basicas[filaSalida] = colEntrada;
             }
 
             // Extraer solución
             let solucion = new Array(numVar).fill(0);
-            let valorZ = 0;
-
+            
             for (let i = 0; i < numRest; i++) {
                 if (basicas[i] < numVar) {
-                    solucion[basicas[i]] = tabla[i][numVariablesAmpliada];
+                    solucion[basicas[i]] = tabla[i][numTotal];
                 }
             }
 
-            valorZ = -tabla[tabla.length - 1][numVariablesAmpliada];
-            if (tipo === 'minimizacion') valorZ = -valorZ;
+            let valorZ = tabla[numRest][numTotal];
 
             return {
                 solucion,
                 valorZ,
-                basicas,
                 iteraciones,
-                numVariablesAmpliada,
+                basicas,
                 numVar,
-                tipo,
+                numTotal,
+                numRest,
                 varNames
             };
         }
@@ -887,20 +794,17 @@
             // Valor de Z
             html += `
                 <div class="result-item">
-                    <strong>💰 Valor de la Función Objetivo (Z):</strong><br>
-                    Z = <span class="result-value">${solucion.valorZ.toFixed(2)}</span> 
-                    <span style="font-size: 0.9em; color: #666;">
-                        (${solucion.tipo === 'maximizacion' ? 'Máximo' : 'Mínimo'})
-                    </span>
+                    <strong>💰 Utilidad Máxima (Z):</strong><br>
+                    <span class="result-value">Bs. ${solucion.valorZ.toFixed(2)}</span>
                 </div>
             `;
 
             // Valores de variables
-            html += '<div class="result-item"><strong>📦 Valores de Variables Decisión:</strong><br>';
+            html += '<div class="result-item"><strong>📦 Cantidad de Productos a Producir por día:</strong><br>';
             for (let i = 0; i < solucion.numVar; i++) {
-                const valor = solucion.solucion[i].toFixed(4);
-                const nombreVar = datos.varNames[i] || `x${i + 1}`;
-                html += `<div class="result-detail"><strong>${nombreVar}:</strong> ${valor}</div>`;
+                const valor = solucion.solucion[i].toFixed(2);
+                const nombreVar = datos.varNames[i];
+                html += `<div class="result-detail"><strong>${nombreVar}:</strong> <span>${valor} unidades</span></div>`;
             }
             html += '</div>';
 
@@ -908,15 +812,16 @@
             html += `
                 <div class="success-box">
                     <strong>✓ Solución Óptima Encontrada</strong><br>
-                    Iteraciones realizadas: ${solucion.iteraciones.length}
+                    <br>
+                    El restaurante debe producir diariamente las cantidades indicadas para maximizar la utilidad total en <strong>Bs. ${solucion.valorZ.toFixed(2)}</strong>
                 </div>
             `;
 
             container.innerHTML = html;
             document.getElementById('resultados').style.display = 'block';
 
-            // Guardar para detalles
             window.ultimaSolucion = solucion;
+            window.ultimosDatos = datos;
         }
 
         // TOGGLE DETALLES
@@ -939,28 +844,50 @@
         function mostrarDetallesSimplex() {
             const container = document.getElementById('detallesIteraciones');
             const solucion = window.ultimaSolucion;
+            const datos = window.ultimosDatos;
 
             let html = '';
-            for (let iter of solucion.iteraciones.slice(0, 10)) { // Mostrar máximo 10 iteraciones
-                html += `
-                    <div class="iteration-box">
-                        <h4>Iteración ${iter.iteracion}</h4>
-                        <p><strong>Pivote:</strong> Fila ${iter.pivote.fila + 1}, Columna ${iter.pivote.columna + 1}</p>
-                        <p><strong>Variables básicas:</strong> ${iter.basicas.join(', ')}</p>
-                    </div>
-                `;
-            }
 
-            if (solucion.iteraciones.length > 10) {
-                html += `<div class="info-box"><p>... y ${solucion.iteraciones.length - 10} iteraciones más</p></div>`;
+            for (let iter of solucion.iteraciones) {
+                html += `<div class="iteration-box">
+                    <h4>Iteración ${iter.num}</h4>
+                    <div class="table-container">
+                        <table class="table-simplex">
+                            <tr>
+                                <th>Base</th>`;
+                
+                // Encabezados de variables
+                for (let i = 0; i < iter.tabla[0].length - 1; i++) {
+                    if (i < datos.numVar) {
+                        html += `<th>x${i+1}</th>`;
+                    } else {
+                        html += `<th>s${i - datos.numVar + 1}</th>`;
+                    }
+                }
+                html += `<th>RHS</th></tr>`;
+
+                // Filas de restricciones
+                for (let i = 0; i < iter.tabla.length - 1; i++) {
+                    let varBasica = iter.basicas[i] < datos.numVar ? `x${iter.basicas[i]+1}` : `s${iter.basicas[i]-datos.numVar+1}`;
+                    html += `<tr><td><strong>${varBasica}</strong></td>`;
+                    for (let j = 0; j < iter.tabla[i].length; j++) {
+                        html += `<td>${iter.tabla[i][j].toFixed(4)}</td>`;
+                    }
+                    html += `</tr>`;
+                }
+
+                // Fila Z
+                html += `<tr style="background: #ffffcc;">
+                    <td><strong>Z</strong></td>`;
+                for (let j = 0; j < iter.tabla[iter.tabla.length-1].length; j++) {
+                    html += `<td>${iter.tabla[iter.tabla.length-1][j].toFixed(4)}</td>`;
+                }
+                html += `</tr></table>
+                    </div>
+                </div>`;
             }
 
             container.innerHTML = html;
-        }
-
-        // ACTUALIZAR FORMULARIO
-        function actualizarFormulario() {
-            // Se puede agregar lógica adicional si es necesario
         }
     </script>
 </body>
